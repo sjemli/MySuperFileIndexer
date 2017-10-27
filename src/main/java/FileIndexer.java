@@ -1,4 +1,5 @@
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.*;
@@ -35,8 +36,8 @@ public class FileIndexer {
 
         String inputPath = "C:\\Users\\Seif_PC\\Desktop\\fileIndexer";
         ExecutorService executorService = Executors.newSingleThreadExecutor();
-        Future<ConcurrentHashMap<String, Integer>> result = executorService.submit(new SearchTask(inputPath));
-        ConcurrentHashMap<String, Integer> resultMap = new ConcurrentHashMap<>();
+        Future<Map<String, Integer>> result = executorService.submit(new SearchTask(inputPath));
+        Map<String, Integer> resultMap = new HashMap<>();
 
         try {
             resultMap = result.get();

@@ -3,40 +3,37 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.CountDownLatch;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.Callable;
 
-public class FileProcessorTask implements Runnable {
+public class FileProcessorTask implements Callable<Map<String, Integer>> {
 
     private Path filePath;
-    private ConcurrentMap<String, Integer> map;
-    private  CountDownLatch countDownLatch;
 
-    public FileProcessorTask(Path p, ConcurrentMap<String, Integer> resultMap, CountDownLatch countDownLatch) {
+    public FileProcessorTask(Path p) {
 
         filePath = p;
-        this.map = resultMap;
-        this.countDownLatch = countDownLatch;
+
     }
 
-    public void run() {
+    public Map<String, Integer> call() {
 
+        Map<String, Integer> map = new HashMap<>();
         Charset charset = Charset.forName("ASCII");
 
         try (BufferedReader reader = Files.newBufferedReader(filePath, charset)) {
             String line ;
             while ((line = reader.readLine()) != null) {
-                processLine(line);
+                processLine(line, map);
             }
         } catch (IOException x) {
             System.err.format("IOException: %s%n", x);
-            countDownLatch.countDown();
         }
-        countDownLatch.countDown();
-
+        return map;
     }
 
-    public void processLine(String line) {
+    public void processLine(String line, Map<String, Integer> map) {
         StringBuilder word = new StringBuilder();
         int i = 0;
         String foundWord = "";
@@ -61,6 +58,7 @@ public class FileProcessorTask implements Runnable {
             int value = map.get(foundWord) == null ? 0 : map.get(foundWord);
             map.put(foundWord, ++value);
         }
+
 
     }
 }
